@@ -10,6 +10,10 @@ describe Oystercard do
     end
   end
 
+  describe '#top_up' do
+    it { expect { subject.top_up(10) }.to change { subject.balance }.by(10) }
+  end
+
 
 
 end
