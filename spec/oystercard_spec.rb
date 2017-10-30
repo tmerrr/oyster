@@ -2,6 +2,7 @@ require 'oystercard'
 
 describe Oystercard do
   let(:card) { Oystercard.new(50) }
+  let(:station) { double(:aldgate) }
 
   describe "#balance" do
     context "When a new card is intialized" do
@@ -19,13 +20,21 @@ describe Oystercard do
   describe '#touch_in' do
     context 'when card is being used to travel' do
       it 'should return true for touch in' do
-        expect(card.touch_in).to be true
+        card.touch_in(station)
+        expect(card.in_journey?).to be true
       end
     end
 
     context "when you don't have enough balance for one journey" do
       it "returns an Error" do
-        expect { subject.touch_in }.to raise_error 'Insufficient Funds'
+        expect { subject.touch_in(station) }.to raise_error 'Insufficient Funds'
+      end
+    end
+
+    context 'when touching in at Kings Cross' do
+      it 'changes start point on card' do
+        expect { card.touch_in('Kings Cross') }.to change { card.start_point }
+        expect(card.start_point).to eq 'Kings Cross'
       end
     end
   end
@@ -33,7 +42,7 @@ describe Oystercard do
   describe '#in_journey?' do
     context 'when card is in use' do
       it "returns true" do
-        card.touch_in
+        card.touch_in(station)
         expect(card.in_journey?).to be true
       end
     end
@@ -42,15 +51,14 @@ describe Oystercard do
   describe '#touch_out' do
     context 'when user is not traveling' do
       it "should change journery status" do
-        card.touch_in
-        expect { card.touch_out }.to change { card.in_journey? }
+        card.touch_in(station)
+        expect { card.touch_out(station) }.to change { card.in_journey? }
       end
     end
 
     context 'when user touches out' do
       it "should reduce by minimum fare" do
-        card.touch_out
-        expect { card.touch_out }.to change { card.balance }.by(-Oystercard::MIN_FARE)
+        expect { card.touch_out(station) }.to change { card.balance }.by(-Oystercard::MIN_FARE)
       end
     end
   end
