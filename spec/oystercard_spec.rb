@@ -1,6 +1,7 @@
 require 'oystercard'
 
 describe Oystercard do
+  let(:card) { Oystercard.new(50) }
 
   describe "#balance" do
     context "When a new card is intialized" do
@@ -18,8 +19,33 @@ describe Oystercard do
   describe '#deduct' do
     context 'when calling deduct(10) on a card with 50 as value' do
       it 'returns balance as 40' do
-        card = Oystercard.new(50)
         expect { card.deduct(10) }.to change { card.balance }.by(-10)
+      end
+    end
+  end
+
+  describe '#touch_in' do
+    context 'when card is being used to travel' do
+      it 'should return true for touch in' do
+        expect(card.touch_in).to be true
+      end
+    end
+  end
+
+  describe '#in_journey?' do
+    context 'when card is in use' do
+      it "returns true" do
+        card.touch_in
+        expect(card.in_journey?).to be true
+      end
+    end
+  end
+
+  describe '#touch_out' do
+    context 'when user is not traveling' do
+      it "should change journery status" do
+        card.touch_in
+        expect { card.touch_out }.to change { card.in_journey? }
       end
     end
   end
