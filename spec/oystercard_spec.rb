@@ -30,6 +30,12 @@ describe Oystercard do
         expect(card.touch_in).to be true
       end
     end
+
+    context "when you don't have enough balance for one journey" do
+      it "returns an Error" do
+        expect { subject.touch_in }.to raise_error 'Insufficient Funds'
+      end
+    end
   end
 
   describe '#in_journey?' do
