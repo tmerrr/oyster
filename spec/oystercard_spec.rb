@@ -11,7 +11,9 @@ describe Oystercard do
   end
 
   describe '#top_up' do
-    it { expect { subject.top_up(10) }.to change { subject.balance }.by(10) }
+    it { expect { subject.top_up(Oystercard::MAX_VALUE) }.to change { subject.balance }.by(Oystercard::MAX_VALUE) }
+
+    it { expect { subject.top_up(Oystercard::MAX_VALUE + 1) }.to raise_error "Cannot exceed max balance of #{Oystercard::MAX_VALUE}" }
   end
 
 
