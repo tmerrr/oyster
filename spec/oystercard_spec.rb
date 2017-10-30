@@ -63,4 +63,25 @@ describe Oystercard do
     end
   end
 
+  describe "@travel_history" do
+    context 'card has an empty history' do
+      it "should return an empty array" do
+        expect(card.travel_history).to eq []
+      end
+    end
+
+    context "card should return a full journey history" do
+      it "should add a journey to the history" do
+        card.touch_in(station)
+        expect { card.touch_out(station) }.to change { card.travel_history }
+      end
+
+      it "should increase journey history by 1" do
+        card.touch_in(station)
+        expect { card.touch_out(station) }.to change { card.travel_history.length }.by 1
+      end
+
+    end
+  end
+
 end
