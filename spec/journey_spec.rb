@@ -13,8 +13,8 @@ describe Journey do
   describe '#start' do
     context 'when an oystercard is touching in' do
       it 'returns station name to start point' do
-        expect(subject.start(aldgate)).to eq(aldgate.name)
-        expect(subject.start(kingsx)).to eq(kingsx.name)
+        expect { subject.start(aldgate) }.to change { subject.start_point }.to eq(aldgate.name)
+        expect { subject.start(kingsx) }.to change { subject.start_point }.to eq(kingsx.name)
       end
     end
   end
@@ -33,9 +33,21 @@ describe Journey do
 
   end
 
-  # describe '#finish' do
-  #   context 'when an oystercard is touching out' do
-  #     it ''
+  describe '#finish' do
+    context 'when an oystercard is touching out' do
+      it 'returns station name to end point' do
+        expect { subject.finish(aldgate) }.to change { subject.end_point }.to eq(aldgate.name)
+        expect { subject.finish(kingsx) }.to change { subject.end_point }.to eq(kingsx.name)
+      end
+    end
+  end
+
+  # describe '#complete' do
+  #   it 'returns a Hash with Date, start_point, and end_point' do
+  #     date = '31/10/17'
+  #     subject.start(aldgate)
+  #     subject.finish(kingsx)
+  #     expect(subject.complete).to eq({ date: date, start: aldgate.name, finish: kingsx.name })
   #   end
   # end
 

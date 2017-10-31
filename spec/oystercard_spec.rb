@@ -2,7 +2,7 @@ require 'oystercard'
 
 describe Oystercard do
   let(:card) { Oystercard.new(50) }
-  let(:station) { double(:aldgate) }
+  let(:aldgate) { double(:station, :name => 'Aldgate', :zone => 3) }
 
   describe "#balance" do
     context "When a new card is intialized" do
@@ -14,27 +14,27 @@ describe Oystercard do
 
   describe '#top_up' do
     it { expect { subject.top_up(10) }.to change { subject.balance }.by(10) }
-    it { expect { subject.top_up(Oystercard::MAX_VALUE + 1) }.to raise_error "Cannot exceed max balance of #{Oystercard::MAX_VALUE}" }
+    it { expect { subject.top_up(Oystercard::MAX_VALUE + 1) }.to raise_error "Max Balance of #{Oystercard::MAX_VALUE}" }
   end
 
   describe '#touch_in' do
     context 'when card is being used to travel' do
       it 'should return true for touch in' do
-        card.touch_in(station)
+        card.touch_in(aldgate)
         expect(card.in_journey?).to be true
       end
     end
 
     context "when you don't have enough balance for one journey" do
       it "returns an Error" do
-        expect { subject.touch_in(station) }.to raise_error 'Insufficient Funds'
+        expect { subject.touch_in(aldgate) }.to raise_error 'Insufficient Funds'
       end
     end
 
-    context 'when touching in at Kings Cross' do
+    context 'when touching in at Aldgate' do
       it 'changes start point on card' do
-        expect { card.touch_in('Kings Cross') }.to change { card.start_point }
-        expect(card.start_point).to eq 'Kings Cross'
+        expect { card.touch_in(aldgate) }.to change { card.my_start_point }
+        expect(card.my_start_point).to eq 'Aldgate'
       end
     end
   end
@@ -42,7 +42,7 @@ describe Oystercard do
   describe '#in_journey?' do
     context 'when card is in use' do
       it "returns true" do
-        card.touch_in(station)
+        card.touch_in(aldgate)
         expect(card.in_journey?).to be true
       end
     end
@@ -51,14 +51,15 @@ describe Oystercard do
   describe '#touch_out' do
     context 'when user is not traveling' do
       it "should change journery status" do
-        card.touch_in(station)
-        expect { card.touch_out(station) }.to change { card.in_journey? }
+        card.touch_in(aldgate)
+        expect { card.touch_out(aldgate) }.to change { card.in_journey? }
       end
     end
 
     context 'when user touches out' do
       it "should reduce by minimum fare" do
-        expect { card.touch_out(station) }.to change { card.balance }.by(-Oystercard::MIN_FARE)
+        card.touch_in(aldgate)
+        expect { card.touch_out(aldgate) }.to change { card.balance }.by(-Oystercard::MIN_FARE)
       end
     end
   end
@@ -72,13 +73,13 @@ describe Oystercard do
 
     context "card should return a full journey history" do
       it "should add a journey to the history" do
-        card.touch_in(station)
-        expect { card.touch_out(station) }.to change { card.travel_history }
+        card.touch_in(aldgate)
+        expect { card.touch_out(aldgate) }.to change { card.travel_history }
       end
 
       it "should increase journey history by 1" do
-        card.touch_in(station)
-        expect { card.touch_out(station) }.to change { card.travel_history.length }.by 1
+        card.touch_in(aldgate)
+        expect { card.touch_out(aldgate) }.to change { card.travel_history.length }.by 1
       end
 
     end
