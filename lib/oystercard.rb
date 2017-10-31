@@ -14,11 +14,13 @@ class Oystercard
   def top_up(value)
     raise "Cannot exceed max balance of #{MAX_VALUE}" if (@balance + value > MAX_VALUE)
     @balance += value
+    "You have successfully topped up your Oystercard by £#{value}"
   end
 
   def touch_in(station)
     fail 'Insufficient Funds' if (balance <= MIN_FARE)
     @start_point = station
+    'Have a good journey!'
   end
 
   def in_journey?
@@ -26,9 +28,10 @@ class Oystercard
   end
 
   def touch_out(station)
-    @travel_history << {start_point: @start_point, end_point: station}
-    deduct(MIN_FARE)
+    @travel_history << {time_and_date: Time.new, start_point: @start_point, end_point: station}
     @start_point = nil
+    deduct(MIN_FARE)
+    'Thank you, goodbye!'
   end
 
   private
