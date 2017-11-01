@@ -12,7 +12,7 @@ class Oystercard
   def initialize(balance = MIN_FARE)
     @balance        = balance
     @travel_history = []
-    @journey        = Journey.new
+    @journey        = Journey.new(penalty: PENALTY, min_fare: MIN_FARE)
   end
 
   public
@@ -24,18 +24,14 @@ class Oystercard
 
   def touch_in(station)
     fail 'Insufficient Funds' if (balance < MIN_FARE)
-    if in_journey?
-      charge_penalty
-      add_travel_history
-    end
-    @journey.start(station)
+    complete
+    @journey.set_start(station)
     'Have a good journey!'
   end
 
   def touch_out(station)
-    in_journey? ? deduct(MIN_FARE) : charge_penalty
-    @journey.finish(station)
-    add_travel_history
+    @journey.set_end(station)
+    complete
     'Thank you, goodbye!'
   end
 
@@ -48,15 +44,25 @@ class Oystercard
   end
 
   private
+
+  def complete
+    deduct(fare)
+    add_travel_history
+  end
+
+  def add_travel_history
+    store_travel_history unless @journey.completed?
+  end
+
+  def fare
+    @journey.fare
+  end
+
   def deduct(value)
     @balance -= value
   end
 
-  def charge_penalty
-    deduct(PENALTY)
-  end
-
-  def add_travel_history
+  def store_travel_history
     @travel_history << @journey.complete
   end
 

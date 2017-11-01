@@ -1,16 +1,18 @@
 class Journey
   attr_reader :start_point, :end_point
 
-  def initialize
-    @start_point  = nil
-    @end_point    = nil
+  def initialize(options = {})
+    @penalty      = options[:penalty] || 0
+    @min_fare     = options[:min_fare] || 0
+    @start_point  = options[:start_point]
+    @end_point    = options[:end_point]
   end
 
-  def start(station)
+  def set_start(station)
     @start_point = { station: station.name, zone: station.zone }
   end
 
-  def finish(station)
+  def set_end(station)
     @end_point = { station: station.name, zone: station.zone }
   end
 
@@ -24,6 +26,14 @@ class Journey
     complete_journey
   end
 
+  def fare
+    penalty? ? penalty_fare : standard_fare
+  end
+
+  def completed?
+    @start_point.nil? && @end_point.nil?
+  end
+
   private
   def refresh
     @start_point  = nil
@@ -31,23 +41,15 @@ class Journey
   end
 
   def penalty?
-
+    !!@start_point ^ !!@end_point
   end
 
-  def at_touch_in?
-    @start_point.nil? && @end_point.nil?
+  def standard_fare
+    completed? ? 0 : @min_fare
   end
 
-  def incomplete_journey?
-    @start_point || @end_point
-  end
-
-  def improper_start
-    in_journey? && at_touch_in?
-  end
-
-  def improper_end
-
+  def penalty_fare
+    @penalty
   end
 
 end
