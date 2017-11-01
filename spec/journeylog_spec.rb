@@ -7,13 +7,13 @@ describe JourneyLog do
   let(:journey_class) { double(:journey, :new => journey) }
 
   # status objects
-  let(:status) { double(:status, set_start: nil) }
+  let(:status) { double(:status, set_start: nil, clear?: true) }
   let(:status_class) { double(:status, :new => status) }
 
   # general subject
   subject(:journeylog) do
     JourneyLog.new(
-      journey_class: journey_class, 
+      journey_class: journey_class,
       status_class: status_class
     )
   end
@@ -33,20 +33,16 @@ describe JourneyLog do
       end
 
       it 'has empty journeys array' do
-        expect(subject.journeys).to be_empty 
+        expect(subject.journeys).to be_empty
       end
     end
   end
 
-  describe '#new_journey' do
-
+  describe '#start_journey' do
     before(:each) { expect(status).to receive(:set_start).with(:start) }
     it 'creates a new instance of Journey' do
-      subject.new_journey(:start)
+      subject.start_journey(:start)
     end
-  end
-
-  describe '#complete_journey' do
   end
 
   describe '#fare' do
@@ -75,6 +71,23 @@ describe JourneyLog do
       before(:each) { allow(status).to receive(:clear?).and_return(true) }
       it 'returns 6' do
         expect(subject.fare(:station)).to eq 6
+      end
+    end
+  end
+
+  describe '#complete_journey' do
+    context 'when a Journey should be pushed to the Log' do
+      before(:each) { allow(subject).to receive(:in_journey?).and_return(true) }
+      it 'pushes the current journey to the log' do
+        expect { subject.complete_journey('station') }
+          .to change { subject.journeys.length }.by(1)
+      end
+    end
+
+    context 'when a Journey shouldn\'t be pushed' do
+      before(:each) { allow(subject).to receive(:in_journey?).and_return(false) }
+      it 'does not push journey to log' do
+
       end
     end
   end

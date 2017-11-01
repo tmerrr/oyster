@@ -21,15 +21,24 @@ class JourneyLog
     penalty?(finish) ? penalty_fare : standard_fare
   end
 
-  def complete_journey(station)
-    commit_journey(station) if should_commit_with? station
-    fare(station)
+  def complete_journey(finish)
+    commit_journey(start, finish) if should_commit_with? finish
+    fare(finish)
   end
 
   private
 
-  def should_commit_with?
+  def should_commit_with?(station)
     in_journey? || penalty?(station)
+  end
+
+  def commit_journey(start, finish)
+    @journeys << Journey.new(start, finish)
+  end
+
+  def start
+    @status.start
+  end
 
   def in_journey?
     !status.clear?
