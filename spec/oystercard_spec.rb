@@ -27,14 +27,15 @@ describe Oystercard do
 
     context "when you don't have enough balance for one journey" do
       it "returns an Error" do
-        expect { subject.touch_in(aldgate) }.to raise_error 'Insufficient Funds'
+        card_with_no_funds = Oystercard.new(0)
+        expect { card_with_no_funds.touch_in(aldgate) }.to raise_error 'Insufficient Funds'
       end
     end
 
     context 'when touching in at Aldgate' do
       it 'changes start point on card' do
         expect { card.touch_in(aldgate) }.to change { card.my_start_point }
-        expect(card.my_start_point).to eq 'Aldgate'
+        expect(card.my_start_point).to eq({ station: aldgate.name, zone: aldgate.zone })
       end
     end
   end

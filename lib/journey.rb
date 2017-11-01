@@ -7,11 +7,11 @@ class Journey
   end
 
   def start(station)
-    @start_point = station.name
+    @start_point = { station: station.name, zone: station.zone }
   end
 
   def finish(station)
-    @end_point = station.name
+    @end_point = { station: station.name, zone: station.zone }
   end
 
   def in_journey?

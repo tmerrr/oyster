@@ -23,7 +23,7 @@ class Oystercard
   end
 
   def touch_in(station)
-    fail 'Insufficient Funds' if (balance <= MIN_FARE)
+    fail 'Insufficient Funds' if (balance < MIN_FARE)
     if in_journey?
       charge_penalty
       add_travel_history
@@ -58,6 +58,14 @@ class Oystercard
 
   def add_travel_history
     @travel_history << @journey.complete
+  end
+
+  def start_zone
+    @journey.start_point[:zone]
+  end
+
+  def end_zone
+    @journey.end_point[:zone]
   end
 
 end
