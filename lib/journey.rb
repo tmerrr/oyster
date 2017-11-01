@@ -17,7 +17,7 @@ class Journey
   end
 
   def in_journey?
-    @start_point != nil
+    !!@start_point
   end
 
   def complete

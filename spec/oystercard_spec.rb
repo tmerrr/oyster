@@ -7,7 +7,13 @@ describe Oystercard do
     double(:journey_class, :new => journey)
   end
 
-  let(:journey) { double(:journey, :fare => 0, :new_journey? => true) }
+  let(:journey) do
+    double(:journey, :fare => 0, :new_journey? => false,
+      :set_start => nil, :set_end => nil,
+      :in_journey? => nil, :start_point => nil,
+      :end_point => nil, :complete => nil
+    )
+  end
 
   # default subject
   let(:card) { Oystercard.new(50, journey_class) }
@@ -38,13 +44,6 @@ describe Oystercard do
   end
 
   describe '#touch_in' do
-    context 'when card is being used to travel' do
-      it 'should report in_journey? as true' do
-        card.touch_in(aldgate)
-        expect(card).to be_in_journey
-      end
-    end
-
     context "when you don't have enough balance for one journey" do
       it "raise an error" do
         empty_card = described_class.new(0)
@@ -60,27 +59,18 @@ describe Oystercard do
     end
   end
 
-  describe '#in_journey?' do
-    context 'when card is in use' do
-      it "returns true" do
-        card.touch_in(aldgate)
-        expect(card.in_journey?).to be true
-      end
-    end
-  end
-
   describe '#touch_out' do
-    context 'when user is not traveling' do
-      it "should change journery status" do
-        card.touch_in(aldgate)
-        expect { card.touch_out(aldgate) }.to change { card.in_journey? }
-      end
-    end
-
     context 'when user touches out' do
       it "should reduce by minimum fare" do
-        card.touch_in(aldgate)
+        allow(journey).to receive(:fare).and_return(1)
         expect { card.touch_out(aldgate) }.to change { card.balance }.by(-Oystercard::MIN_FARE)
+      end
+    end
+
+    context 'when touching out at Aldgate' do
+      it 'changes end point on card' do
+        expect(journey).to receive(:set_end).with(aldgate)
+        card.touch_out(aldgate)
       end
     end
   end
@@ -94,7 +84,6 @@ describe Oystercard do
 
     context "card should return a full journey history" do
       it "should add a journey to the history" do
-        card.touch_in(aldgate)
         expect { card.touch_out(aldgate) }.to change { card.travel_history }
       end
 

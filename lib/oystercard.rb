@@ -38,10 +38,6 @@ class Oystercard
     attempt_journey
   end
 
-  def in_journey?
-    @journey.in_journey?
-  end
-
   private
 
   # changing balance
@@ -79,7 +75,7 @@ class Oystercard
   end
 
   def try_travel_history
-    store_travel_history unless @journey.new_journey?
+    get_travel_history unless @journey.new_journey?
   end
 
   # journey fares and completion
