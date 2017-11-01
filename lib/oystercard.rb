@@ -9,69 +9,87 @@ class Oystercard
   MIN_FARE  = 1
   PENALTY   = 6
 
-  def initialize(balance = MIN_FARE)
-    @balance        = balance
+  def initialize(balance = MIN_FARE, journey_class = Journey)
+    @balance = balance
     @travel_history = []
-    @journey        = Journey.new(penalty: PENALTY, min_fare: MIN_FARE)
+    @journey = journey_class.new(penalty: PENALTY, minimum_fare: MIN_FARE)
   end
 
   public
+
   def top_up(value)
-    raise "Max Balance of #{MAX_VALUE}" if (@balance + value > MAX_VALUE)
-    @balance += value
-    "You have successfully topped up your Oystercard by £#{value}"
+    raise "max balance is #{MAX_VALUE}" if overloaded_by? value
+    credit(value)
   end
 
   def touch_in(station)
-    fail 'Insufficient Funds' if (balance < MIN_FARE)
-    complete
-    @journey.set_start(station)
-    'Have a good journey!'
+    raise 'insufficient funds' if cannot_afford?
+    # if previous journey wasn't completed, we should try to
+    # complete it before we start changing journey state
+    attempt_journey
+    # now begin the new journey
+    set_start(station)
   end
 
   def touch_out(station)
-    @journey.set_end(station)
-    complete
-    'Thank you, goodbye!'
+    # first mark the journey as having been completed
+    set_end(station)
+    # attempt to charge the user
+    attempt_journey
   end
 
   def in_journey?
     @journey.in_journey?
   end
 
-  def my_start_point
-    @journey.start_point
-  end
-
   private
 
-  def complete
-    deduct(fare)
-    add_travel_history
-  end
+  # changing balance
 
-  def add_travel_history
-    store_travel_history unless @journey.completed?
-  end
-
-  def fare
-    @journey.fare
+  def credit(value)
+    @balance += value
   end
 
   def deduct(value)
     @balance -= value
   end
 
-  def store_travel_history
+  # information about balance
+
+  def overloaded_by?(value)
+    @balance + value > MAX_VALUE
+  end
+
+  def cannot_afford?
+    balance < MIN_FARE
+  end
+
+  # recording journeys
+
+  def set_start(station)
+    @journey.set_start(station)
+  end
+
+  def set_end(station)
+    @journey.set_end(station)
+  end
+
+  def get_travel_history
     @travel_history << @journey.complete
   end
 
-  def start_zone
-    @journey.start_point[:zone]
+  def try_travel_history
+    store_travel_history unless @journey.new_journey?
   end
 
-  def end_zone
-    @journey.end_point[:zone]
+  # journey fares and completion
+
+  def attempt_journey
+    deduct(fare)
+    try_travel_history
   end
 
+  def fare
+    @journey.fare
+  end
 end

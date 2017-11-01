@@ -3,7 +3,7 @@ class Journey
 
   def initialize(options = {})
     @penalty      = options[:penalty] || 0
-    @min_fare     = options[:min_fare] || 0
+    @min_fare     = options[:minimum_fare] || 0
     @start_point  = options[:start_point]
     @end_point    = options[:end_point]
   end
@@ -27,10 +27,10 @@ class Journey
   end
 
   def fare
-    penalty? ? penalty_fare : standard_fare
+    incurs_penalty? ? penalty_fare : standard_fare
   end
 
-  def completed?
+  def new_journey?
     @start_point.nil? && @end_point.nil?
   end
 
@@ -40,16 +40,15 @@ class Journey
     @end_point    = nil
   end
 
-  def penalty?
+  def incurs_penalty?
     !!@start_point ^ !!@end_point
   end
 
   def standard_fare
-    completed? ? 0 : @min_fare
+    new_journey? ? 0 : @min_fare
   end
 
   def penalty_fare
     @penalty
   end
-
 end

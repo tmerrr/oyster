@@ -2,7 +2,7 @@ require 'journey'
 
 describe Journey do
 
-  let(:fares) { {penalty: 6, min_fare: 1} }
+  let(:fares) { {penalty: 6, minimum_fare: 1} }
   subject { described_class.new(**fares) }
 
   let(:aldgate) { double( :station,
