@@ -30,4 +30,24 @@ class Journey
     @end_point    = nil
   end
 
+  def penalty?
+
+  end
+
+  def at_touch_in?
+    @start_point.nil? && @end_point.nil?
+  end
+
+  def incomplete_journey?
+    @start_point || @end_point
+  end
+
+  def improper_start
+    in_journey? && at_touch_in?
+  end
+
+  def improper_end
+
+  end
+
 end
