@@ -13,8 +13,10 @@ describe Journey do
   describe '#start' do
     context 'when an oystercard is touching in' do
       it 'returns station name to start point' do
-        expect { subject.start(aldgate) }.to change { subject.start_point }.to eq({ station: aldgate.name, zone: aldgate.zone })
-        expect { subject.start(kingsx) }.to change { subject.start_point }.to eq({ station: kingsx.name, zone: kingsx.zone })
+        expect { subject.start(aldgate) }.to change { subject.start_point }
+          .to eq({ station: aldgate.name, zone: aldgate.zone })
+        expect { subject.start(kingsx) }.to change { subject.start_point }
+          .to eq({ station: kingsx.name, zone: kingsx.zone })
       end
     end
   end
@@ -36,8 +38,10 @@ describe Journey do
   describe '#finish' do
     context 'when an oystercard is touching out' do
       it 'returns station name to end point' do
-        expect { subject.finish(aldgate) }.to change { subject.end_point }.to eq({ station: aldgate.name, zone: aldgate.zone })
-        expect { subject.finish(kingsx) }.to change { subject.end_point }.to eq({ station: kingsx.name, zone: kingsx.zone })
+        expect { subject.finish(aldgate) }.to change { subject.end_point }
+          .to eq({ station: aldgate.name, zone: aldgate.zone })
+        expect { subject.finish(kingsx) }.to change { subject.end_point }
+          .to eq({ station: kingsx.name, zone: kingsx.zone })
       end
     end
   end
@@ -46,16 +50,41 @@ describe Journey do
     it 'returns a Hash with Date, start_point, and end_point' do
       subject.start(aldgate)
       subject.finish(kingsx)
-      expect(subject.complete).to include({ start: { station: aldgate.name, zone: aldgate.zone }, finish: { station: kingsx.name, zone: kingsx.zone } })
+      expect(subject.complete)
+        .to include({ 
+          start: { station: aldgate.name, zone: aldgate.zone }, 
+          finish: { station: kingsx.name, zone: kingsx.zone }
+        })
     end
   end
 
-  # describe '#fare' do
-  #   context 'when a full journey has been successfully completed' do
-  #     it 'returns the correct fare' do
-  #       expect(subject.fare(1, 6)).to eq(1)
-  #     end
-  #   end
-  # end
+  describe '#fare' do
+    context 'when a full journey has been successfully completed' do
+      it 'returns the correct fare' do
+        subject = described_class.new(aldgate, kingsx)
+        expect(subject.fare).to eq(1)
+      end
+    end
 
+    context 'when a journey is starting' do
+      it 'returns the no fare' do
+        subject = described_class.new(nil, nil)
+        expect(subject.fare).to eq(0)
+      end
+    end
+
+    context 'when touching in twice' do
+      it 'returns penalty fare' do
+        subject = described_class.new(aldgate, nil)
+        expect(subject.fare).to eq(6)
+      end
+    end
+
+    context 'when touching out twice' do
+      it 'returns penalty fare' do
+        subject = described_class.new(nil, aldgate)
+        expect(subject.fare).to eq(6)
+      end
+    end
+  end
 end
